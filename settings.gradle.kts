@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Cek Sedimen"
+rootProject.name = "Slurry Calc"
 
 include(":app")

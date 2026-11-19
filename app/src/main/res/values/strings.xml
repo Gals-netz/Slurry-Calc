@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cek Sedimen</string>
+    <string name="app_name">Slurry Calc</string>
     <string name="header_title_prefix">CEK SEDIMEN</string>
     <string name="header_title_suffix">&amp; SG SLURRY</string>
     <string name="header_badge">Mine Dewatering</string>
