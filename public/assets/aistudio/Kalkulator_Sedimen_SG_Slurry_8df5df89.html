@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="id"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNjg4NDk4NDczOTg2Mzc4MTI0MiIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzdjNjdkNmI2MzllM2IxMTJfY2VrX3NlZGltZW5fc2dfYXBwLmh0bWwtODM5In0sImV4cCI6MTc5NDk4Njc2OCwiaWF0IjoxNzk0OTgzMTY4LCJhbGciOiJSUzI1NiJ9.T2Q2G26HzOJNcNfFL_Q4UPUkR7hp8p3damS48T6JeNZrRMNGnmwromExsCchncnGEUbVrzclvV7L6Wtw36xYa3OVLYAlak2VzUA04oRM4FGEndnpDiZKCgCU1OfVY5oYh8c_AlbMXhKs4ICM1M1azpqFadZAYa4XDXJxMi5MOAvVrq1LEukqyKrbz-hJkgV6KRU71i3Pa1FNSfpQ5XEviNQ5tbOp3nGk_lV9WViwbuDpkxTczIy9cyf-Q30SqcJYNzKk__HUFjGpjyOuJcEZWBXmkkzDQDuYchcMCFsktn8rckVg7Mme0i55RWbJqg6Q6HIlNr9f814afJ0JsuleJw","c_7c67d6b639e3b112_cek_sedimen_sg_app.html-839")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEK SEDIMEN &amp; SG SLURRY - Kalkulator Komposisi Lumpur</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-y-0{top:0px;bottom:0px}.bottom-5{bottom:1.25rem}.right-0{right:0px}.right-5{right:1.25rem}.top-0{top:0px}.z-20{z-index:20}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-2{margin-top:0.5rem;margin-bottom:0.5rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.ml-1{margin-left:0.25rem}.mr-1{margin-right:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-3\.5{margin-top:0.875rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-11{height:2.75rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-36{height:9rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-11{width:2.75rem}.w-16{width:4rem}.w-2{width:0.5rem}.w-28{width:7rem}.w-3{width:0.75rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-6xl{max-width:72rem}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.translate-y-24{--tw-translate-y:6rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-200 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(226 232 240 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-\[10px\]{border-radius:10px}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.rounded-b-2xl{border-bottom-right-radius:1rem;border-bottom-left-radius:1rem}.border{border-width:1px}.border-2{border-width:2px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-t-0{border-top-width:0px}.border-dashed{border-style:dashed}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-amber-300\/50{border-color:rgb(252 211 77 / 0.5)}.border-amber-400\/20{border-color:rgb(251 191 36 / 0.2)}.border-amber-400\/30{border-color:rgb(251 191 36 / 0.3)}.border-amber-400\/50{border-color:rgb(251 191 36 / 0.5)}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-amber-500\/40{border-color:rgb(245 158 11 / 0.4)}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-400\/20{border-color:rgb(96 165 250 / 0.2)}.border-blue-400\/50{border-color:rgb(96 165 250 / 0.5)}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-400\/30{border-color:rgb(52 211 153 / 0.3)}.border-red-300{--tw-border-opacity:1;border-color:rgb(252 165 165 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-700\/80{border-color:rgb(51 65 85 / 0.8)}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-200{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.bg-amber-200\/80{background-color:rgb(253 230 138 / 0.8)}.bg-amber-50\/60{background-color:rgb(255 251 235 / 0.6)}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-500\/15{background-color:rgb(245 158 11 / 0.15)}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-amber-800{--tw-bg-opacity:1;background-color:rgb(146 64 14 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-500\/15{background-color:rgb(59 130 246 / 0.15)}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-50\/80{background-color:rgb(236 253 245 / 0.8)}.bg-emerald-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-sky-50\/50{background-color:rgb(240 249 255 / 0.5)}.bg-sky-50\/80{background-color:rgb(240 249 255 / 0.8)}.bg-sky-500\/85{background-color:rgb(14 165 233 / 0.85)}.bg-sky-600{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-sky-900{--tw-bg-opacity:1;background-color:rgb(12 74 110 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-950\/60{background-color:rgb(2 6 23 / 0.6)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-amber-500{--tw-gradient-from:#f59e0b var(--tw-gradient-from-position);--tw-gradient-to:rgb(245 158 11 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-slate-800{--tw-gradient-to:rgb(30 41 59 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-blue-700{--tw-gradient-to:#1d4ed8 var(--tw-gradient-to-position)}.to-orange-600{--tw-gradient-to:#ea580c var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.p-0\.5{padding:0.125rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-8{padding:2rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.pt-2\.5{padding-top:0.625rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-100{--tw-text-opacity:1;color:rgb(254 243 199 / var(--tw-text-opacity, 1))}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-800\/70{color:rgb(146 64 14 / 0.7)}.text-amber-800\/80{color:rgb(146 64 14 / 0.8)}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-amber-900\/80{color:rgb(120 53 15 / 0.8)}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3 / var(--tw-text-opacity, 1))}.text-blue-200{--tw-text-opacity:1;color:rgb(191 219 254 / var(--tw-text-opacity, 1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-emerald-800\/80{color:rgb(6 95 70 / 0.8)}.text-emerald-900{--tw-text-opacity:1;color:rgb(6 78 59 / var(--tw-text-opacity, 1))}.text-emerald-950{--tw-text-opacity:1;color:rgb(2 44 34 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-sky-300{--tw-text-opacity:1;color:rgb(125 211 252 / var(--tw-text-opacity, 1))}.text-sky-700{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-sky-800\/80{color:rgb(7 89 133 / 0.8)}.text-sky-900{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.text-sky-950{--tw-text-opacity:1;color:rgb(8 47 73 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.accent-amber-600{accent-color:#d97706}.opacity-0{opacity:0}.opacity-60{opacity:0.6}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-600\/25{--tw-shadow-color:rgb(37 99 235 / 0.25);--tw-shadow:var(--tw-shadow-colored)}.ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-amber-400\/50{--tw-ring-color:rgb(251 191 36 / 0.5)}.drop-shadow{--tw-drop-shadow:drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-amber-300:hover{--tw-bg-opacity:1;background-color:rgb(252 211 77 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-400:hover{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-500:hover{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-300:hover{--tw-bg-opacity:1;background-color:rgb(203 213 225 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-blue-800:hover{--tw-gradient-to:#1e40af var(--tw-gradient-to-position)}.focus\:border-blue-600:focus{--tw-border-opacity:1;border-color:rgb(37 99 235 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-\[0\.99\]:active{--tw-scale-x:0.99;--tw-scale-y:0.99;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:bg-amber-400:active{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:col-span-4{grid-column:span 4 / span 4}.sm\:col-span-8{grid-column:span 8 / span 8}.sm\:inline-block{display:inline-block}.sm\:inline{display:inline}.sm\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:p-12{padding:3rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-5xl{font-size:3rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:inline{display:inline}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}@media (min-width: 1024px){.lg\:col-span-5{grid-column:span 5 / span 5}.lg\:col-span-7{grid-column:span 7 / span 7}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}}</style></head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- HEADER APLIKASI MANDIRI -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-amber-500/40">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Ikon Tabung Ukur / Beaker Slurry -->
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-md flex-shrink-0">
+                    <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-flask-vial text-amber-400 text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">CEK SEDIMEN <span class="text-amber-400">&amp; SG SLURRY</span></h1>
+                        <span class="hidden sm:inline-block text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">Mine Dewatering</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Kalkulator Komposisi Volume &amp; Massa Sedimen dalam Slurry</p>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Cepat -->
+            <div class="flex items-center gap-2">
+                <button onclick="resetForm()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5" title="Reset Form">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span class="hidden sm:inline">Reset</span>
+                </button>
+                <button id="btnCopyHeader" onclick="salinLaporanSG()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition items-center gap-1.5 shadow flex">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span class="hidden sm:inline">Salin Hasil</span>
+                </button>
+                <button onclick="unduhAplikasiMandiri()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow" title="Download file aplikasi mandiri (.html)">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="hidden md:inline">Unduh App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+        <!-- BAGIAN ATAS: KOLOM INPUT PARAMETER & KOLOM OUTPUT UTAMA -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- KOLOM KIRI: INPUT PARAMETER - 5 Kolom -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
+                        <span class="bg-amber-500 text-slate-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black">1</span>
+                        Input Parameter Pengukuran
+                    </h2>
+                    <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">Data Lapangan</span>
+                </div>
+
+                <!-- 1. Input SG Slurry -->
+                <div class="bg-amber-50/80 p-4 rounded-xl border border-amber-200">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="inputSG" class="text-sm font-extrabold text-slate-900">
+                            SG Slurry (Campuran)
+                        </label>
+                        <span class="text-xs font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md">gr/cm³ (kg/L)</span>
+                    </div>
+                    <p class="text-xs text-amber-900/80 mb-3">Berat jenis campuran lumpur (air + padatan) dari hasil pengukuran.</p>
+
+                    <div class="flex items-stretch gap-1.5">
+                        <button type="button" onclick="ubahSG(-0.05)" class="bg-amber-200 hover:bg-amber-300 active:bg-amber-400 text-amber-950 font-extrabold px-2.5 sm:px-3 rounded-xl border border-amber-300 text-xs transition select-none">-0.05</button>
+                        <button type="button" onclick="ubahSG(-0.01)" class="bg-amber-200 hover:bg-amber-300 active:bg-amber-400 text-amber-950 font-extrabold px-2.5 sm:px-3 rounded-xl border border-amber-300 text-xs transition select-none">-0.01</button>
+                        <input type="number" id="inputSG" value="1.30" min="1.00" max="3.50" step="0.01" oninput="sinkronSliderSG(); tandaiPerluHitung();" class="w-full bg-white border-2 border-amber-500 rounded-xl px-2 py-2 text-2xl font-black text-slate-900 text-center focus:outline-none">
+                        <button type="button" onclick="ubahSG(0.01)" class="bg-amber-200 hover:bg-amber-300 active:bg-amber-400 text-amber-950 font-extrabold px-2.5 sm:px-3 rounded-xl border border-amber-300 text-xs transition select-none">+0.01</button>
+                        <button type="button" onclick="ubahSG(0.05)" class="bg-amber-200 hover:bg-amber-300 active:bg-amber-400 text-amber-950 font-extrabold px-2.5 sm:px-3 rounded-xl border border-amber-300 text-xs transition select-none">+0.05</button>
+                    </div>
+
+                    <!-- Slider SG -->
+                    <div class="mt-3">
+                        <input type="range" id="sliderSG" min="1.00" max="2.20" step="0.01" value="1.30" oninput="dariSliderSG()" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+                        <div class="flex justify-between text-[10px] font-bold text-amber-800/70 mt-1">
+                            <span>1.00 (Air)</span>
+                            <span>1.30</span>
+                            <span>1.60</span>
+                            <span>1.90</span>
+                            <span>2.20</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Input Density Sedimen / Solid -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="inputRhoSedimen" class="text-sm font-extrabold text-slate-900">
+                            Density Sedimen / Material Padat (ρ)
+                        </label>
+                        <span class="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md">gr/cm³ (ton/m³)</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">Berat jenis partikel padatan kering murni (pilih standar material atau ketik manual).</p>
+
+                    <div class="flex items-stretch gap-1.5">
+                        <button type="button" onclick="ubahRhoSedimen(-0.05)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold px-3 rounded-xl border border-slate-300 text-xs transition select-none">-0.05</button>
+                        <input type="number" id="inputRhoSedimen" value="2.65" min="1.05" max="5.00" step="0.01" oninput="tandaiPerluHitung(); updateHighlightPreset();" class="w-full bg-white border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 text-2xl font-black text-slate-900 text-center focus:outline-none">
+                        <button type="button" onclick="ubahRhoSedimen(0.05)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold px-3 rounded-xl border border-slate-300 text-xs transition select-none">+0.05</button>
+                    </div>
+
+                    <!-- Tombol Preset Cepat Material Tambang Lengkap -->
+                    <div class="mt-3.5">
+                        <span class="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-layer-group text-amber-600 mr-1"></i> Pilih Standar Density Material:
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="presetContainer">
+                            <button type="button" data-rho="2.65" onclick="pilihPresetRho(2.65)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Pasir Silika / Kuarsa</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.65</span>
+                            </button>
+                            <button type="button" data-rho="2.60" onclick="pilihPresetRho(2.60)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Lempung / Clay OB</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.60</span>
+                            </button>
+                            <button type="button" data-rho="2.55" onclick="pilihPresetRho(2.55)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Batu Lanau (Siltstone)</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.55</span>
+                            </button>
+                            <button type="button" data-rho="2.45" onclick="pilihPresetRho(2.45)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Batu Lumpur (Mudstone)</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.45</span>
+                            </button>
+                            <button type="button" data-rho="2.20" onclick="pilihPresetRho(2.20)" class="preset-btn text-xs bg-blue-50 border-2 border-blue-600 text-blue-900 font-bold py-2 px-2.5 rounded-xl transition flex justify-between items-center shadow-sm">
+                                <span>Pasir Lumpur Campuran</span>
+                                <span class="font-black text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-200">2.20</span>
+                            </button>
+                            <button type="button" data-rho="2.10" onclick="pilihPresetRho(2.10)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Lumpur Topsoil / Humus</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.10</span>
+                            </button>
+                            <button type="button" data-rho="2.00" onclick="pilihPresetRho(2.00)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Tanah Liat Lunak</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">2.00</span>
+                            </button>
+                            <button type="button" data-rho="1.50" onclick="pilihPresetRho(1.50)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Batubara Kotor (Reject)</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">1.50</span>
+                            </button>
+                            <button type="button" data-rho="1.40" onclick="pilihPresetRho(1.40)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Batubara Halus (Fine Coal)</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">1.40</span>
+                            </button>
+                            <button type="button" data-rho="1.35" onclick="pilihPresetRho(1.35)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Batubara Bersih (Coal)</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">1.35</span>
+                            </button>
+                            <button type="button" data-rho="3.20" onclick="pilihPresetRho(3.20)" class="preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center">
+                                <span>Bijih Besi / Limonite / Tailings Berat</span>
+                                <span class="font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">3.20</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peringatan Error jika SG > Density Sedimen -->
+                <div id="alertWarningBox" class="hidden bg-red-50 border border-red-300 text-red-800 rounded-xl p-3 text-xs font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 text-base"></i>
+                    <span id="alertWarningText">Nilai SG Slurry tidak boleh melebihi Density Sedimen!</span>
+                </div>
+
+                <!-- TOMBOL COMMAND UTAMA: HITUNG -->
+                <div class="pt-1 flex gap-2.5">
+                    <button type="button" id="btnHitungUtama" onclick="eksekusiHitung()" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 active:scale-[0.99] text-white font-black text-base py-4 px-6 rounded-2xl shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2.5 cursor-pointer">
+                        <i class="fa-solid fa-calculator text-lg"></i>
+                        <span>HITUNG</span>
+                    </button>
+                    <button type="button" onclick="resetForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 rounded-2xl border border-slate-300 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KOLOM KANAN: AREA HASIL (Muncul Setelah Klik HITUNG) - 7 Kolom -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- PLACEHOLDER SEBELUM KLIK "HITUNG" -->
+                <div id="panelBelumHitung" class="bg-white rounded-2xl p-8 sm:p-12 shadow-sm border-2 border-dashed border-slate-300 text-center space-y-4 hidden">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 mx-auto flex items-center justify-center text-3xl shadow-inner">
+                        <i class="fa-solid fa-flask-vial"></i>
+                    </div>
+                    <div class="space-y-1.5 max-w-md mx-auto">
+                        <h3 id="judulStatusHitung" class="text-lg font-extrabold text-slate-800">Siap Menghitung Komposisi Slurry</h3>
+                        <p id="subjudulStatusHitung" class="text-xs sm:text-sm text-slate-500">
+                            Pastikan nilai <strong>SG Slurry</strong> dan <strong>Density Material</strong> di sebelah kiri sudah sesuai, lalu tekan tombol <strong>HITUNG</strong> untuk menampilkan hasil analisis.
+                        </p>
+                    </div>
+                    <div class="pt-2">
+                        <button type="button" onclick="eksekusiHitung()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm py-3 px-8 rounded-xl shadow-md transition inline-flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>HITUNG SEKARANG</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PANEL HASIL UTAMA (Tampil Setelah Klik HITUNG) -->
+                <div id="panelHasilUtama" class="space-y-6">
+                    
+                    <!-- Kartu Hasil Rasio Komposisi -->
+                    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-700 space-y-5">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                            <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>Hasil Komposisi Sedimen &amp; Air</span>
+                            </h2>
+                            <span id="badgeInfoInput" class="text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">SG Slurry: 1,24 | Density Padatan: 2,20</span>
+                        </div>
+
+                        <!-- 2 Kartu Besar: Volume Sedimen : Slurry & Massa Sedimen : Slurry -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            
+                            <!-- Kartu 1: Volume sedimen : slurry (Cv) -->
+                            <div class="bg-amber-500/15 border-2 border-amber-400/50 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+                                <div class="flex items-center justify-between text-xs font-extrabold text-amber-300 mb-1">
+                                    <span>VOLUME SEDIMEN : SLURRY (C<sub>v</sub>)</span>
+                                    <i class="fa-solid fa-cube text-amber-400"></i>
+                                </div>
+                                <div class="my-2">
+                                    <div id="outCvPersen" class="text-4xl sm:text-5xl font-black text-white tracking-tight">20,00%</div>
+                                    <div class="text-xs text-amber-200 font-mono mt-1">
+                                        Rasio Volume: <strong id="outCvDesimal" class="text-white font-bold">0,2000</strong>
+                                    </div>
+                                </div>
+                                <div class="pt-2.5 mt-2 border-t border-amber-400/20 flex items-center justify-between text-xs">
+                                    <span class="text-slate-300">Volume Air (Water):</span>
+                                    <strong id="outVolAirPersen" class="text-sky-300 font-extrabold text-sm">80,00%</strong>
+                                </div>
+                            </div>
+
+                            <!-- Kartu 2: Massa sedimen : slurry (Cw) -->
+                            <div class="bg-blue-500/15 border-2 border-blue-400/50 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+                                <div class="flex items-center justify-between text-xs font-extrabold text-blue-300 mb-1">
+                                    <span>MASSA SEDIMEN : SLURRY (C<sub>w</sub>)</span>
+                                    <i class="fa-solid fa-weight-hanging text-blue-400"></i>
+                                </div>
+                                <div class="my-2">
+                                    <div id="outCwPersen" class="text-4xl sm:text-5xl font-black text-white tracking-tight">35,48%</div>
+                                    <div class="text-xs text-blue-200 font-mono mt-1">
+                                        Rasio Massa: <strong id="outCwDesimal" class="text-white font-bold">0,3548</strong>
+                                    </div>
+                                </div>
+                                <div class="pt-2.5 mt-2 border-t border-blue-400/20 flex items-center justify-between text-xs">
+                                    <span class="text-slate-300">Massa Air (Water):</span>
+                                    <strong id="outMassaAirPersen" class="text-sky-300 font-extrabold text-sm">64,52%</strong>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Visualisasi Gelas Ukur (Beaker) & Bar Proporsi -->
+                        <div class="bg-slate-950/60 rounded-2xl p-4 border border-slate-700/80 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                            
+                            <!-- Ilustrasi Tabung Ukur Slurry (4 Kolom) -->
+                            <div class="sm:col-span-4 flex flex-col items-center">
+                                <div class="text-[11px] font-bold text-slate-300 mb-2">Ilustrasi Campuran</div>
+                                <div class="relative w-28 h-36 border-4 border-t-0 border-slate-300 rounded-b-2xl overflow-hidden bg-slate-900 flex flex-col justify-end shadow-inner">
+                                    <div class="absolute inset-y-0 right-0 w-3 flex flex-col justify-between py-2 z-20 pointer-events-none opacity-60">
+                                        <div class="border-b border-white w-full"></div>
+                                        <div class="border-b border-white w-2"></div>
+                                        <div class="border-b border-white w-full"></div>
+                                        <div class="border-b border-white w-2"></div>
+                                        <div class="border-b border-white w-full"></div>
+                                    </div>
+                                    <!-- Lapisan Air (Atas) -->
+                                    <div id="beakerWaterLayer" class="w-full bg-sky-500/85 transition-all duration-300 flex items-center justify-center text-[11px] font-extrabold text-white drop-shadow" style="height: 80%;">
+                                        <span id="beakerWaterText">Air 80,0%</span>
+                                    </div>
+                                    <!-- Lapisan Sedimen (Bawah) -->
+                                    <div id="beakerSedimenLayer" class="w-full bg-amber-600 transition-all duration-300 flex items-center justify-center text-[11px] font-extrabold text-amber-100 border-t border-amber-300/50" style="height: 20%;">
+                                        <span id="beakerSedimenText">20,0%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Grafik Bar Perbandingan Volume vs Massa (8 Kolom) -->
+                            <div class="sm:col-span-8 space-y-4">
+                                <!-- Bar 1: Proporsi Volume -->
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-1">
+                                        <span class="text-amber-400" id="barLblVolSed">Sedimen: 200,00 cm³ (20,00%)</span>
+                                        <span class="text-sky-300" id="barLblVolAir">Air: 800,00 cm³ (80,00%)</span>
+                                    </div>
+                                    <div class="w-full h-5 bg-sky-600 rounded-lg overflow-hidden flex border border-slate-600">
+                                        <div id="barFillVolSed" class="bg-amber-500 h-full transition-all duration-300" style="width: 20%;"></div>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 mt-0.5">Proporsi berdasarkan <strong>Volume</strong></div>
+                                </div>
+
+                                <!-- Bar 2: Proporsi Massa -->
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-1">
+                                        <span class="text-amber-400" id="barLblMassSed">Sedimen: 440,00 gr (35,48%)</span>
+                                        <span class="text-sky-300" id="barLblMassAir">Air: 800,00 gr (64,52%)</span>
+                                    </div>
+                                    <div class="w-full h-5 bg-sky-600 rounded-lg overflow-hidden flex border border-slate-600">
+                                        <div id="barFillMassSed" class="bg-amber-500 h-full transition-all duration-300" style="width: 35.4839%;"></div>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 mt-0.5">Proporsi berdasarkan <strong>Massa (Berat)</strong></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BAGIAN BAWAH (Tampil Setelah Klik HITUNG): TABEL KESETIMBANGAN & KONVERSI LAPANGAN -->
+        <div id="panelHasilTabel" class="space-y-6">
+            
+            <!-- TABEL KESETIMBANGAN MASSA & VOLUME (BERSIH TANPA TULISAN SEL/KOLOM/BARIS) -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-emerald-600"></i>
+                            <span>Rincian Kesetimbangan Massa &amp; Volume (Per 1 Liter / 1.000 cm³ Slurry)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Perbandingan komponen campuran slurry, air, dan padatan sedimen.</p>
+                    </div>
+                    <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-check-double mr-1"></i> Slurry = Water + Sedimen
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-white">
+                                <th class="py-3 px-4 font-bold border border-slate-700">Parameter</th>
+                                <th class="py-3 px-4 font-bold border border-slate-700 text-center">Satuan</th>
+                                <th class="py-3 px-4 font-bold border border-slate-700 text-right bg-slate-700">Slurry (Campuran)</th>
+                                <th class="py-3 px-4 font-bold border border-slate-700 text-right bg-sky-900">Water (Air)</th>
+                                <th class="py-3 px-4 font-bold border border-slate-700 text-right bg-amber-800">Sedimen (Padatan)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <!-- Massa (gr) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4 font-extrabold text-slate-800 border border-slate-200">Massa</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-600 border border-slate-200">gr</td>
+                                <td id="valMassaSlurry" class="py-3 px-4 text-right font-black text-slate-900 bg-slate-50 border border-slate-200 font-mono text-base">1.240,00</td>
+                                <td id="valMassaWater" class="py-3 px-4 text-right font-bold text-sky-800 bg-sky-50/50 border border-slate-200 font-mono text-base">800,00</td>
+                                <td id="valMassaSedimen" class="py-3 px-4 text-right font-extrabold text-amber-900 bg-amber-50/60 border border-slate-200 font-mono text-base">440,00</td>
+                            </tr>
+                            <!-- Volume (cm3) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4 font-extrabold text-slate-800 border border-slate-200">Volume</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-600 border border-slate-200">cm³</td>
+                                <td id="valVolSlurry" class="py-3 px-4 text-right font-black text-slate-900 bg-slate-50 border border-slate-200 font-mono text-base">1.000,00</td>
+                                <td id="valVolWater" class="py-3 px-4 text-right font-bold text-sky-800 bg-sky-50/50 border border-slate-200 font-mono text-base">800,00</td>
+                                <td id="valVolSedimen" class="py-3 px-4 text-right font-extrabold text-amber-900 bg-amber-50/60 border border-slate-200 font-mono text-base">200,00</td>
+                            </tr>
+                            <!-- SG / Density -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4 font-extrabold text-slate-800 border border-slate-200">SG / Density</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-600 border border-slate-200">gr/cm³</td>
+                                <td id="valSgSlurry" class="py-3 px-4 text-right font-extrabold text-slate-900 bg-slate-50 border border-slate-200 font-mono">1,24</td>
+                                <td id="valSgWater" class="py-3 px-4 text-right font-bold text-sky-800 bg-sky-50/50 border border-slate-200 font-mono">1,00</td>
+                                <td id="valSgSedimen" class="py-3 px-4 text-right font-extrabold text-amber-900 bg-amber-50/60 border border-slate-200 font-mono">2,20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- KONVERSI PRAKTIS LAPANGAN (PER 1 M³ SLURRY) -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-cubes text-amber-600"></i>
+                        <span>Konversi Praktis Lapangan (Dalam Setiap 1 m³ / 1.000 Liter Slurry)</span>
+                    </h3>
+                    <button onclick="salinLaporanSG()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Salin Ringkasan Laporan</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- 1. Volume Sedimen per 1 m3 Slurry -->
+                    <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4">
+                        <div class="text-xs font-bold text-amber-900">Volume Sedimen Padat</div>
+                        <div class="mt-1 flex items-baseline gap-2">
+                            <span id="konvVolSedM3" class="text-2xl sm:text-3xl font-black text-amber-950">0,200</span>
+                            <span class="text-sm font-bold text-amber-800">m³</span>
+                            <span id="konvVolSedLiter" class="text-xs font-bold text-amber-700 ml-1">(200,0 Liter)</span>
+                        </div>
+                        <p class="text-[11px] text-amber-800/80 mt-1">Jumlah volume padatan murni di dalam 1 m³ slurry.</p>
+                    </div>
+
+                    <!-- 2. Volume Air per 1 m3 Slurry -->
+                    <div class="bg-sky-50/80 border border-sky-200 rounded-xl p-4">
+                        <div class="text-xs font-bold text-sky-900">Volume Air (Water)</div>
+                        <div class="mt-1 flex items-baseline gap-2">
+                            <span id="konvVolAirM3" class="text-2xl sm:text-3xl font-black text-sky-950">0,800</span>
+                            <span class="text-sm font-bold text-sky-800">m³</span>
+                            <span id="konvVolAirLiter" class="text-xs font-bold text-sky-700 ml-1">(800,0 Liter)</span>
+                        </div>
+                        <p class="text-[11px] text-sky-800/80 mt-1">Jumlah volume air di dalam 1 m³ slurry.</p>
+                    </div>
+
+                    <!-- 3. Berat / Tonase Sedimen per 1 m3 Slurry -->
+                    <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-4">
+                        <div class="text-xs font-bold text-emerald-900">Massa / Tonase Sedimen</div>
+                        <div class="mt-1 flex items-baseline gap-2">
+                            <span id="konvTonSed" class="text-2xl sm:text-3xl font-black text-emerald-950">0,440</span>
+                            <span class="text-sm font-bold text-emerald-800">Ton</span>
+                            <span id="konvKgSed" class="text-xs font-bold text-emerald-700 ml-1">(440,0 kg)</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-800/80 mt-1">Total berat kering sedimen dalam 1 m³ slurry (total massa = <strong id="konvTonSlurry">1,24 Ton</strong>).</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Toast Notifikasi -->
+    <div id="toastNotif" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50 border border-slate-700">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastPesan" class="text-xs sm:text-sm font-bold">Berhasil!</span>
+    </div>
+
+    <!-- LOGIKA PERHITUNGAN JAVASCRIPT -->
+    <script>
+        // Konstanta Internal (Air = 1.0 gr/cm3, Basis Volume = 1.000 cm3)
+        const RHO_WATER = 1.00;
+        const BASIS_VOL_SLURRY = 1000.0;
+
+        let stateHasil = null;
+
+        // Format Angka Indonesia
+        function fmt(angka, desimal = 2) {
+            return Number(angka || 0).toLocaleString('id-ID', {
+                minimumFractionDigits: desimal,
+                maximumFractionDigits: desimal
+            });
+        }
+
+        // Tandai bahwa input berubah dan user perlu menekan tombol HITUNG
+        function tandaiPerluHitung() {
+            const panelBelum = document.getElementById('panelBelumHitung');
+            const panelUtama = document.getElementById('panelHasilUtama');
+            const panelTabel = document.getElementById('panelHasilTabel');
+            const btnCopy = document.getElementById('btnCopyHeader');
+
+            panelBelum.classList.remove('hidden');
+            panelUtama.classList.add('hidden');
+            panelTabel.classList.add('hidden');
+            btnCopy.classList.add('hidden');
+            btnCopy.classList.remove('flex');
+
+            const btnHitung = document.getElementById('btnHitungUtama');
+            btnHitung.classList.add('ring-4', 'ring-amber-400/50');
+        }
+
+        // Highlight tombol preset material yang cocok dengan nilai input
+        function updateHighlightPreset() {
+            const currentRho = parseFloat(document.getElementById('inputRhoSedimen').value);
+            const buttons = document.querySelectorAll('.preset-btn');
+            buttons.forEach(btn => {
+                const btnRho = parseFloat(btn.getAttribute('data-rho'));
+                const badge = btn.querySelector('span:last-child');
+                if (Math.abs(currentRho - btnRho) < 0.001) {
+                    btn.className = "preset-btn text-xs bg-blue-50 border-2 border-blue-600 text-blue-900 font-bold py-2 px-2.5 rounded-xl transition flex justify-between items-center shadow-sm";
+                    if (badge) badge.className = "font-black text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-200";
+                } else {
+                    btn.className = "preset-btn text-xs bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-2.5 rounded-xl border border-slate-300 transition flex justify-between items-center";
+                    if (badge) badge.className = "font-extrabold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded";
+                }
+            });
+        }
+
+        // Kontrol Tombol +/- SG Slurry
+        function ubahSG(delta) {
+            const el = document.getElementById('inputSG');
+            const rhoS = parseFloat(document.getElementById('inputRhoSedimen').value) || 2.65;
+            let val = (parseFloat(el.value) || 1.0) + delta;
+            val = Math.max(RHO_WATER, Math.min(rhoS, +(val.toFixed(2))));
+            el.value = val.toFixed(2);
+            sinkronSliderSG();
+            tandaiPerluHitung();
+        }
+
+        function sinkronSliderSG() {
+            const val = parseFloat(document.getElementById('inputSG').value) || 1.0;
+            document.getElementById('sliderSG').value = Math.max(1.0, Math.min(2.2, val));
+        }
+
+        function dariSliderSG() {
+            const val = parseFloat(document.getElementById('sliderSG').value) || 1.30;
+            document.getElementById('inputSG').value = val.toFixed(2);
+            tandaiPerluHitung();
+        }
+
+        // Kontrol Tombol +/- & Preset Density Sedimen
+        function ubahRhoSedimen(delta) {
+            const el = document.getElementById('inputRhoSedimen');
+            let val = (parseFloat(el.value) || 2.65) + delta;
+            val = Math.max(1.05, Math.min(5.00, +(val.toFixed(2))));
+            el.value = val.toFixed(2);
+            updateHighlightPreset();
+            tandaiPerluHitung();
+        }
+
+        function pilihPresetRho(nilai) {
+            document.getElementById('inputRhoSedimen').value = nilai.toFixed(2);
+            updateHighlightPreset();
+            tandaiPerluHitung();
+        }
+
+        // FUNGSI SAAT TOMBOL "HITUNG" DITEKAN
+        function eksekusiHitung() {
+            let sg = parseFloat(document.getElementById('inputSG').value);
+            let rhoSed = parseFloat(document.getElementById('inputRhoSedimen').value);
+
+            const warningBox = document.getElementById('alertWarningBox');
+            if (isNaN(rhoSed) || rhoSed <= RHO_WATER) {
+                rhoSed = 2.65;
+                document.getElementById('inputRhoSedimen').value = '2.65';
+                updateHighlightPreset();
+            }
+
+            if (isNaN(sg) || sg < RHO_WATER) {
+                sg = RHO_WATER;
+                document.getElementById('inputSG').value = RHO_WATER.toFixed(2);
+                sinkronSliderSG();
+                warningBox.classList.add('hidden');
+            } else if (sg > rhoSed) {
+                warningBox.classList.remove('hidden');
+                document.getElementById('alertWarningText').innerText =
+                    `SG Slurry (${fmt(sg, 2)}) tidak boleh melebihi Density Material (${fmt(rhoSed, 2)}). Nilai SG disesuaikan ke ${fmt(rhoSed, 2)}.`;
+                sg = rhoSed;
+                document.getElementById('inputSG').value = rhoSed.toFixed(2);
+                sinkronSliderSG();
+            } else {
+                warningBox.classList.add('hidden');
+            }
+
+            // Perhitungan Kesetimbangan:
+            const massaSlurry = BASIS_VOL_SLURRY * sg;
+            const volWater = BASIS_VOL_SLURRY * ((rhoSed - sg) / (rhoSed - RHO_WATER));
+            const volSedimen = BASIS_VOL_SLURRY - volWater;
+
+            const massaWater = volWater * RHO_WATER;
+            const massaSedimen = volSedimen * rhoSed;
+
+            const rasioMassaCw = massaSlurry > 0 ? (massaSedimen / massaSlurry) : 0;
+            const rasioVolCv = BASIS_VOL_SLURRY > 0 ? (volSedimen / BASIS_VOL_SLURRY) : 0;
+
+            const persenCv = rasioVolCv * 100;
+            const persenVolAir = 100 - persenCv;
+            const persenCw = rasioMassaCw * 100;
+            const persenMassaAir = 100 - persenCw;
+
+            // Update Badge Info Input
+            document.getElementById('badgeInfoInput').innerText = `SG Slurry: ${fmt(sg, 2)} | Density Padatan: ${fmt(rhoSed, 2)}`;
+
+            // Update Kartu Hasil Utama (Cv & Cw)
+            document.getElementById('outCvPersen').innerText = `${fmt(persenCv, 2)}%`;
+            document.getElementById('outCvDesimal').innerText = fmt(rasioVolCv, 4);
+            document.getElementById('outVolAirPersen').innerText = `${fmt(persenVolAir, 2)}%`;
+
+            document.getElementById('outCwPersen').innerText = `${fmt(persenCw, 2)}%`;
+            document.getElementById('outCwDesimal').innerText = fmt(rasioMassaCw, 4);
+            document.getElementById('outMassaAirPersen').innerText = `${fmt(persenMassaAir, 2)}%`;
+
+            // Update Visualisasi Beaker & Progress Bar
+            document.getElementById('beakerWaterLayer').style.height = `${persenVolAir}%`;
+            document.getElementById('beakerSedimenLayer').style.height = `${persenCv}%`;
+            document.getElementById('beakerWaterText').innerText = persenVolAir >= 18 ? `Air ${fmt(persenVolAir, 1)}%` : '';
+            document.getElementById('beakerSedimenText').innerText = persenCv >= 10 ? `${fmt(persenCv, 1)}%` : '';
+
+            document.getElementById('barLblVolSed').innerText = `Sedimen: ${fmt(volSedimen, 2)} cm³ (${fmt(persenCv, 2)}%)`;
+            document.getElementById('barLblVolAir').innerText = `Air: ${fmt(volWater, 2)} cm³ (${fmt(persenVolAir, 2)}%)`;
+            document.getElementById('barFillVolSed').style.width = `${persenCv}%`;
+
+            document.getElementById('barLblMassSed').innerText = `Sedimen: ${fmt(massaSedimen, 2)} gr (${fmt(persenCw, 2)}%)`;
+            document.getElementById('barLblMassAir').innerText = `Air: ${fmt(massaWater, 2)} gr (${fmt(persenMassaAir, 2)}%)`;
+            document.getElementById('barFillMassSed').style.width = `${persenCw}%`;
+
+            // Update Tabel Kesetimbangan
+            document.getElementById('valMassaSlurry').innerText = fmt(massaSlurry, 2);
+            document.getElementById('valMassaWater').innerText = fmt(massaWater, 2);
+            document.getElementById('valMassaSedimen').innerText = fmt(massaSedimen, 2);
+
+            document.getElementById('valVolSlurry').innerText = fmt(BASIS_VOL_SLURRY, 2);
+            document.getElementById('valVolWater').innerText = fmt(volWater, 2);
+            document.getElementById('valVolSedimen').innerText = fmt(volSedimen, 2);
+
+            document.getElementById('valSgSlurry').innerText = fmt(sg, 2);
+            document.getElementById('valSgWater').innerText = fmt(RHO_WATER, 2);
+            document.getElementById('valSgSedimen').innerText = fmt(rhoSed, 2);
+
+            // Update Konversi Praktis per 1 m3 (1.000 Liter) Slurry
+            const volSedM3 = rasioVolCv * 1.0;
+            const volAirM3 = (1 - rasioVolCv) * 1.0;
+            const tonSed = volSedM3 * rhoSed;
+
+            document.getElementById('konvVolSedM3').innerText = fmt(volSedM3, 3);
+            document.getElementById('konvVolSedLiter').innerText = `(${fmt(volSedM3 * 1000, 1)} Liter)`;
+            document.getElementById('konvVolAirM3').innerText = fmt(volAirM3, 3);
+            document.getElementById('konvVolAirLiter').innerText = `(${fmt(volAirM3 * 1000, 1)} Liter)`;
+            document.getElementById('konvTonSed').innerText = fmt(tonSed, 3);
+            document.getElementById('konvKgSed').innerText = `(${fmt(tonSed * 1000, 1)} kg)`;
+            document.getElementById('konvTonSlurry').innerText = `${fmt(sg, 2)} Ton`;
+
+            stateHasil = {
+                sg,
+                rhoSed,
+                massaSlurry,
+                massaWater,
+                massaSedimen,
+                volWater,
+                volSedimen,
+                cw: rasioMassaCw,
+                cv: rasioVolCv,
+                persenCw,
+                persenCv
+            };
+
+            // Tampilkan Panel Hasil & Sembunyikan Placeholder
+            document.getElementById('panelBelumHitung').classList.add('hidden');
+            document.getElementById('panelHasilUtama').classList.remove('hidden');
+            document.getElementById('panelHasilTabel').classList.remove('hidden');
+
+            const btnCopy = document.getElementById('btnCopyHeader');
+            btnCopy.classList.remove('hidden');
+            btnCopy.classList.add('flex');
+
+            const btnHitung = document.getElementById('btnHitungUtama');
+            btnHitung.classList.remove('ring-4', 'ring-amber-400/50');
+        }
+
+        function resetForm() {
+            document.getElementById('inputSG').value = '1.30';
+            document.getElementById('sliderSG').value = '1.30';
+            document.getElementById('inputRhoSedimen').value = '2.65';
+            document.getElementById('alertWarningBox').classList.add('hidden');
+            updateHighlightPreset();
+            tandaiPerluHitung();
+            tampilkanToast('Form dikembalikan ke pengaturan awal.');
+        }
+
+        function salinLaporanSG() {
+            if (!stateHasil) {
+                eksekusiHitung();
+            }
+            const s = stateHasil;
+            const teks =
+                `*HASIL PERHITUNGAN KOMPOSISI SEDIMEN & SG SLURRY*\n` +
+                `----------------------------------------\n` +
+                `• SG Slurry: *${fmt(s.sg, 2)}*\n` +
+                `• Density Material Padat (ρ): *${fmt(s.rhoSed, 2)} gr/cm³*\n` +
+                `----------------------------------------\n` +
+                `*HASIL RASIO KOMPOSISI:*\n` +
+                `• *Volume Sedimen : Slurry (Cv) = ${fmt(s.persenCv, 2)}%* (Air: ${fmt(100 - s.persenCv, 2)}%)\n` +
+                `• *Massa Sedimen : Slurry (Cw) = ${fmt(s.persenCw, 2)}%* (Air: ${fmt(100 - s.persenCw, 2)}%)\n` +
+                `----------------------------------------\n` +
+                `*RINCIAN PER 1 LITER (1.000 cm³) SLURRY:*\n` +
+                `• Slurry: Massa *${fmt(s.massaSlurry, 2)} gr* | Volume *1.000,00 cm³*\n` +
+                `• Water: Massa *${fmt(s.massaWater, 2)} gr* | Volume *${fmt(s.volWater, 2)} cm³*\n` +
+                `• Sedimen: Massa *${fmt(s.massaSedimen, 2)} gr* | Volume *${fmt(s.volSedimen, 2)} cm³*`;
+
+            const ta = document.createElement('textarea');
+            ta.value = teks;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+
+            tampilkanToast('Laporan hasil perhitungan berhasil disalin!');
+        }
+
+        function unduhAplikasiMandiri() {
+            const konten = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([konten], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Kalkulator_Sedimen_SG_Slurry.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            tampilkanToast('File aplikasi mandiri (.html) berhasil diunduh!');
+        }
+
+        function tampilkanToast(pesan) {
+            const box = document.getElementById('toastNotif');
+            document.getElementById('toastPesan').innerText = pesan;
+            box.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                box.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        window.onload = function() {
+            updateHighlightPreset();
+            tandaiPerluHitung();
+        };
+    </script>
+
+</body></html>

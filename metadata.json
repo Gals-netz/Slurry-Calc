@@ -1,0 +1,6 @@
+{
+  "name": "Cek Sedimen",
+  "description": "Kalkulator Komposisi Volume dan Massa Sedimen dalam Slurry (Mine Dewatering)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

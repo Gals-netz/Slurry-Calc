@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Cek Sedimen</string>
+    <string name="header_title_prefix">CEK SEDIMEN</string>
+    <string name="header_title_suffix">&amp; SG SLURRY</string>
+    <string name="header_badge">Mine Dewatering</string>
+    <string name="header_subtitle">Kalkulator Komposisi Volume &amp; Massa Sedimen dalam Slurry</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_copy_result">Salin Hasil</string>
+    <string name="action_share_result">Bagikan</string>
+    <string name="action_calculate">HITUNG</string>
+    <string name="action_calculate_now">HITUNG SEKARANG</string>
+    <string name="action_copy_summary">Salin Ringkasan Laporan</string>
+</resources>

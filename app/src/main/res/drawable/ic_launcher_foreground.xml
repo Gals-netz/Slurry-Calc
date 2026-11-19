@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Flask interior dark tint -->
+    <path
+        android:fillColor="#FF0B1120"
+        android:pathData="M46,29 L62,29 L62,42 L79,71 C81.5,75.5 78.3,81 73,81 L35,81 C29.7,81 26.5,75.5 29,71 L46,42 Z" />
+    <!-- Water layer -->
+    <path
+        android:fillColor="#FF0EA5E9"
+        android:pathData="M41.3,50 L66.7,50 L76.65,67 L31.35,67 Z" />
+    <!-- Sediment layer -->
+    <path
+        android:fillColor="#FFF59E0B"
+        android:pathData="M31.35,67 L76.65,67 L79,71 C81.5,75.5 78.3,81 73,81 L35,81 C29.7,81 26.5,75.5 29,71 Z" />
+    <!-- Sediment dividing highlight line -->
+    <path
+        android:fillColor="#FFFCD34D"
+        android:pathData="M31.35,66.2 L76.65,66.2 L77.2,67.5 L30.8,67.5 Z" />
+    <!-- Sediment texture particles -->
+    <path
+        android:fillColor="#FF92400E"
+        android:pathData="M42,74 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M56,76 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 M66,73 m-1.8,0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0" />
+    <!-- Flask glass outline -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M46,29 L62,29 L62,42 L79,71 C81.5,75.5 78.3,81 73,81 L35,81 C29.7,81 26.5,75.5 29,71 L46,42 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+    <!-- Flask rim -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M41.5,25 L66.5,25 A2.2,2.2 0 0,1 66.5,29.4 L41.5,29.4 A2.2,2.2 0 0,1 41.5,25 Z" />
+    <!-- Measurement tick marks -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M58,54 L64,54 M61,60 L68,60 M65,66 L72,66"
+        android:strokeColor="#E6FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.0" />
+</vector>
